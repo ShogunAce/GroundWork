@@ -2,8 +2,14 @@
   "name": "groundwork",
   "version": "1.0.0",
   "private": true,
-  "engines": {"node": ">=22.12.0"},
-  "overrides": {"exceljs": {"uuid": "11.1.1"}},
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "11.1.1"
+    }
+  },
   "type": "module",
   "workspaces": [
     "web"
@@ -19,6 +25,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "1.1.0",
     "@aws-sdk/client-bedrock-runtime": "3.1156.0",
+    "@aws-sdk/client-comprehend": "3.1156.0",
+    "@aws-sdk/client-polly": "3.1156.0",
     "@modelcontextprotocol/sdk": "1.32.1",
     "dotenv": "18.0.9",
     "exceljs": "4.4.0",
