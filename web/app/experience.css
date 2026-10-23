@@ -1,0 +1,97 @@
+/* Field journal: tactile surfaces, botanical photography, quiet motion. */
+.intro{position:relative;padding:clamp(80px,10vw,150px) 5%;background:radial-gradient(ellipse at 15% 15%,#f9f8ef 0,transparent 55%),#e9eddf}
+.intro>h2{font-size:clamp(32px,4.2vw,62px);max-width:1100px;margin:24px auto 0;line-height:1.1}
+.field-guide{max-width:1280px;margin:60px auto 0;text-align:left}
+.guide-invitation{display:flex;justify-content:space-between;gap:20px;align-items:center;color:#53654e;font-size:13px;margin-bottom:24px}
+.guide-invitation>span{font-size:11px;color:#56634f}
+.field-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-flow:dense;gap:18px}
+.field-card{display:block;position:relative;border:0;padding:0;background:transparent;color:var(--ink);text-align:left;perspective:1400px;min-width:0;min-height:450px;border-radius:24px;isolation:isolate}
+.field-card:active:not(:disabled){transform:none}
+.field-card-turn{display:grid;height:100%;transform-style:preserve-3d;transition:transform .85s cubic-bezier(.22,.7,.2,1)}
+.field-card.is-open .field-card-turn{transform:rotateY(180deg)}
+.field-card-face{grid-area:1/1;display:flex;flex-direction:column;min-width:0;min-height:450px;border-radius:24px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.field-card-front{padding:30px;background:linear-gradient(145deg,#fffef8e8,#f7f8ef99);border:1px solid #fffdf4;box-shadow:inset 0 1px 0 #fff,0 14px 40px #30432b08;transform:translateZ(1px)}
+.card-image-window{display:block;width:100%;height:145px;border-radius:70px 70px 16px 16px;overflow:hidden;margin-bottom:26px;background:#dce4d2}
+.card-image-window img{display:block;width:100%;height:100%;object-fit:cover;transition:transform 1s var(--ease)}
+.field-card:hover .card-image-window img{transform:scale(1.07)}
+.field-card-title{display:block;font-family:Georgia,'Times New Roman',serif;font-size:clamp(28px,2.5vw,38px);font-weight:400;line-height:1.1;letter-spacing:-1px;margin-bottom:14px}
+.field-card-text{display:block;font-size:13px;line-height:1.8;color:#596952}
+.card-open{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:24px;font-size:11px;color:#46583e}
+.card-orbit{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;border:1px solid #ccd7be;font-size:21px;transition:background .3s,transform .3s}
+.field-card:hover .card-orbit{background:#dce6cc;transform:rotate(45deg)}
+.field-card-back{position:relative;transform:rotateY(180deg);background:#294431;justify-content:flex-end;padding:20px;color:#fffef4;box-shadow:0 15px 45px #23372318}
+.field-card-back>img{position:absolute;inset:0;object-fit:cover;width:100%;height:100%;z-index:-2}
+.field-card-back:before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent,#112b1b70);z-index:-1}
+.card-close{position:absolute;right:20px;top:20px;display:grid;place-items:center;border:1px solid #ffffff88;background:#17322465;backdrop-filter:blur(12px);width:38px;height:38px;border-radius:50%;font-size:25px;font-weight:300}
+.card-glass{display:block;background:#203829b5;border:1px solid #ffffff55;box-shadow:inset 0 1px 0 #ffffff55,0 12px 35px #10241a22;border-radius:18px;padding:24px;backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3)}
+.card-glass .field-card-title{font-size:29px;letter-spacing:-.6px}
+.card-glass .field-card-text{color:#f5f8eb;font-size:12px;line-height:1.75}
+.card-return{display:block;color:#e2ebd7;font-size:10px;margin-top:20px}
+.desk{position:relative;padding-top:clamp(80px,9vw,140px);padding-bottom:clamp(80px,9vw,140px)}
+.desk:before{content:'';position:absolute;inset:70px 0 0;pointer-events:none;z-index:-1;background:radial-gradient(ellipse at 90% 35%,#dce4cb80,transparent 60%)}
+.section-top h2{font-size:clamp(38px,4.6vw,66px);line-height:1.05}
+.tabs{border:1px solid #ffffff;background:#e6e9dcb3;box-shadow:inset 0 1px 0 #fff,0 8px 28px #283c2310;backdrop-filter:blur(16px)}
+.tabs button{min-height:44px}
+.panel{border-radius:24px;border-color:#d9e0cf;background:#fffef9;box-shadow:0 12px 40px #2e4a3010,inset 0 0 0 5px #f7f8f0;transition:border-color .3s,box-shadow .3s}
+.panel:focus-within{border-color:#91a37b;box-shadow:0 16px 45px #2e4a3015,inset 0 0 0 5px #f4f7ec}
+.field-card:focus-visible,.panel:focus-within,.workbook-banner:focus-within,.workbook-section:focus-within{opacity:1!important}
+.panel-heading h3{font-size:16px}
+.capture textarea{border-radius:8px;transition:background .3s}
+.capture textarea:focus{background:#f6f8ef}
+.empty-botanical{width:84px;height:84px;object-fit:cover;border-radius:50%;margin-bottom:22px;box-shadow:0 0 0 7px #f0f3e7,0 0 0 8px #dce4ce}
+.empty>span{color:#69775e}
+.privacy{color:#68755d}
+.workbook-banner{position:relative;overflow:hidden;isolation:isolate;min-height:240px;border-radius:24px;padding:42px;background:#2c4936;color:#fffef2}
+.workbook-banner:before{content:'';position:absolute;inset:0;z-index:-2;background:url('/img/creek-film.webp') center 65%/cover;transition:transform 1.2s var(--ease)}
+.workbook-banner:after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#173523ed,#173523b8 55%,#17352370)}
+.workbook-banner:hover:before{transform:scale(1.035)}
+.workbook-banner h3{font-size:clamp(28px,3vw,40px);line-height:1.1;max-width:560px}
+.workbook-banner p{color:#ecf0e1}
+.workbook-banner .eyebrow{color:#d6e2c2;font-size:9px}
+.workbook-banner .primary{background:#f3f5e7;color:#213d2c;border:1px solid #ffffff99;box-shadow:0 3px 20px #11281933}
+.workbook-banner .primary:hover:not(:disabled){background:#fff}
+.workbook-banner .primary:disabled{opacity:.7}
+.workbook-banner .primary .arrow{background:#dfe7d0}
+.workbook{box-shadow:0 25px 80px #2b412812;border-radius:26px}
+.workbook-cover{position:relative;isolation:isolate;overflow:hidden;background:#edf0e2;padding:clamp(30px,5vw,70px)}
+.workbook-cover:before{content:'';position:absolute;inset:0;z-index:-2;background:url('/img/field-journal.webp') right center/cover}
+.workbook-cover:after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#eef2e5fa 20%,#eef2e5ee 55%,#eef2e58f)}
+.workbook-cover h2{font-size:clamp(36px,4.4vw,62px);max-width:800px}
+.download-bar button{background:#fffef6e6;min-height:42px;backdrop-filter:blur(10px)}
+.download-bar button:hover{background:#e1e9d2;transform:translateY(-2px)}
+.workbook-section{padding-top:52px;padding-bottom:52px}
+.mission-grid>.mission{background:linear-gradient(145deg,#fffef8,#f1f5e8);border-radius:18px;transition:border-color .3s,box-shadow .3s}
+.mission-grid>.mission:has(input:checked){border-color:#8ca477;box-shadow:inset 0 0 0 1px #8ca477}
+.brief{background:#f7f8ef;border-radius:18px;transition:background .3s,border-color .3s}
+.brief[open]{background:#fffef8;border-color:#b4c3a5}
+.brief summary{padding:4px 0;line-height:1.4}
+.week{grid-auto-flow:dense}
+.week>div:last-child:nth-child(odd){grid-column:1/-1}
+.principles{max-width:1350px;margin:0 auto 80px;padding:0;position:relative;min-height:660px;border-radius:32px;overflow:hidden;isolation:isolate;text-align:left;display:flex;align-items:center;background:#193526;color:#f5f5e8}
+.care-image{position:absolute;inset:0;z-index:-2;overflow:hidden}
+.care-image img{width:100%;height:100%;object-fit:cover;object-position:center}
+.principles:after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#112e22ed 0%,#112e22b8 50%,#112e2220)}
+.care-content{max-width:780px;padding:80px 7%;position:relative}
+.care-content>svg{width:42px;height:42px;margin-bottom:28px;color:#d2dfb6}
+.care-content h2{font-size:clamp(48px,6vw,84px);line-height:1;letter-spacing:-2px;margin-bottom:30px}
+.care-content h2 em{color:#d2dfb6}
+.care-content .care-copy{font-size:clamp(16px,1.6vw,21px);color:#eff1e5;line-height:1.65;max-width:530px;margin-bottom:30px}
+.care-content .primary{background:#eff2df;color:#223e2c}
+.care-content .primary:hover{background:#fffef3}
+.care-content .arrow{background:#dce5cc}
+.care-caption{position:absolute;bottom:30px;right:35px;font-size:10px;letter-spacing:1px;color:#eff4e4;text-shadow:0 1px 8px #122d20}
+footer{border-top:1px solid #d5deca;padding-top:40px;padding-bottom:40px}
+@media(min-width:761px) and (max-width:1000px){.hero h1{font-size:clamp(56px,7.2vw,70px)}.field-card-front{padding:22px}.field-card-title{font-size:29px}.card-glass{padding:18px}.card-glass .field-card-title{font-size:26px}.field-card-face{min-height:475px}}
+@media(max-width:1400px){.principles{margin-left:5%;margin-right:5%}}
+@media(max-width:760px){
+ .field-guide{margin-top:40px}.guide-invitation{align-items:flex-start;flex-direction:column;gap:8px;font-size:12px}
+ .field-cards{grid-template-columns:1fr;gap:18px}.field-card,.field-card-face{min-height:400px}.field-card-front{padding:26px}.card-image-window{height:140px;width:100%;border-radius:75px 75px 14px 14px;margin-bottom:24px}.field-card-title{font-size:34px}.field-card-text{font-size:14px;max-width:480px}.card-glass{padding:25px}.card-glass .field-card-title{font-size:32px}.card-glass .field-card-text{font-size:14px}
+ .intro>h2{font-size:clamp(31px,6.3vw,45px)}.intro>h2 br{display:none}.intro>h2 em{display:block;margin-top:6px}
+ .section-top{gap:24px}.tabs{max-width:100%}.tabs button{padding:12px 18px}
+ .panel-heading h3{font-size:15px}.workbook-banner{padding:30px;min-height:280px;gap:24px}.workbook-banner h3{font-size:34px}.workbook-banner:after{background:#173523cf}
+ .workbook-title{align-items:flex-start}.workbook-title h3{line-height:1.25}.workbook-section{padding:32px 24px}.workbook-cover:after{background:#eef2e5ed}
+ .principles{margin-bottom:55px;border-radius:24px;min-height:680px;align-items:flex-end}.principles:after{background:linear-gradient(0deg,#112e22f2,#112e22b3 65%,#112e2255)}.care-content{padding:65px 28px 80px}.care-content h2{font-size:60px}.care-content .care-copy{font-size:17px}.care-caption{bottom:25px;right:28px;font-size:9px}.care-image img{object-position:62% center}
+}
+@media(max-width:375px){.field-card-front{padding:22px}.field-card-title{font-size:31px}.card-glass{padding:20px}.card-glass .field-card-title{font-size:28px}.card-glass .field-card-text{font-size:13px}.care-content{padding-left:23px;padding-right:23px}.care-content h2{font-size:51px}.care-content .care-copy{font-size:16px}.care-content .primary{font-size:11px;gap:8px;padding-left:16px}.workbook-banner{padding:25px}.workbook-banner h3{font-size:29px}.workbook-title h3{font-size:22px}}
+@media(prefers-reduced-motion:reduce){.field-card-turn{transition:none}.care-copy span{opacity:1!important}.reveal-image{opacity:1!important;transform:none!important}}
+@media print{.workbook,.panel{box-shadow:none}.workbook-cover:before,.workbook-cover:after{display:none}.workbook-cover{background:none}.workbook-section,.workbook-cover{opacity:1!important;visibility:visible!important;transform:none!important}.workbook-section{padding:25px 0}.mission-grid>.mission,.brief{background:none}.week>div:last-child:nth-child(odd){grid-column:auto}}
