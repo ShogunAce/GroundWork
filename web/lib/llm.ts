@@ -12,7 +12,7 @@ export async function planWithLLM(text:string):Promise<{provider:Provider;energy
    const r=await client.send(new ConverseCommand({modelId:process.env.BEDROCK_MODEL_ID||'amazon.nova-micro-v1:0',system:[{text:instruction}],messages:[{role:'user',content:[{text}]}],inferenceConfig:{maxTokens:150,temperature:0}}),{abortSignal:AbortSignal.timeout(12000)});
    output=r.output?.message?.content?.map(c=>c.text||'').join('')||'';
   }else if(preferred==='anthropic'){
-   const client=new Anthropic({apiKey:process.env.ANTHROPIC_API_KEY,maxRetries:0,timeout:12000});
+   const client=new Anthropic({apiKey:process.env.ANTHROPIC_API_KEY,defaultHeaders:process.env.ANTHROPIC_WORKSPACE_ID?{"anthropic-workspace-id":process.env.ANTHROPIC_WORKSPACE_ID}:undefined,maxRetries:0,timeout:12000});
    const r=await client.messages.create({model:process.env.ANTHROPIC_MODEL||'claude-sonnet-5-5',max_tokens:150,system:instruction,messages:[{role:'user',content:text}]});
    output=r.content.map(c=>c.type==='text'?c.text:'').join('');
   }else return fallback('Unknown provider configuration; deterministic planning is active.');
@@ -20,9 +20,10 @@ export async function planWithLLM(text:string):Promise<{provider:Provider;energy
   return {provider:preferred,energy:parsed.energy==='low'?'low':'steady',start_time:/^([01]\d|2[0-3]):[0-5]\d$/.test(parsed.start_time)?parsed.start_time:'09:00',notice:'AI selected planning preferences. Observations and evidence are processed by deterministic, validated MCP tools.'};
  }catch{
   if(preferred==='bedrock'&&process.env.ALLOW_ANTHROPIC_FALLBACK==='true'&&process.env.ANTHROPIC_API_KEY){
-   try{const client=new Anthropic({apiKey:process.env.ANTHROPIC_API_KEY,maxRetries:0,timeout:10000});const r=await client.messages.create({model:process.env.ANTHROPIC_MODEL||'claude-sonnet-5-5',max_tokens:150,system:instruction,messages:[{role:'user',content:text}]});const out=r.content.map(c=>c.type==='text'?c.text:'').join('');const p=JSON.parse(out.match(/\{[\s\S]*\}/)?.[0]||'{}');return {provider:'anthropic',energy:p.energy==='low'?'low':'steady',start_time:/^([01]\d|2[0-3]):[0-5]\d$/.test(p.start_time)?p.start_time:'09:00',notice:'Bedrock unavailable; the explicitly enabled Anthropic backup selected planning preferences.'};}catch{return fallback('Both configured AI providers were unavailable. Deterministic planning completed.');}
+   try{const client=new Anthropic({apiKey:process.env.ANTHROPIC_API_KEY,defaultHeaders:process.env.ANTHROPIC_WORKSPACE_ID?{"anthropic-workspace-id":process.env.ANTHROPIC_WORKSPACE_ID}:undefined,maxRetries:0,timeout:10000});const r=await client.messages.create({model:process.env.ANTHROPIC_MODEL||'claude-sonnet-5-5',max_tokens:150,system:instruction,messages:[{role:'user',content:text}]});const out=r.content.map(c=>c.type==='text'?c.text:'').join('');const p=JSON.parse(out.match(/\{[\s\S]*\}/)?.[0]||'{}');return {provider:'anthropic',energy:p.energy==='low'?'low':'steady',start_time:/^([01]\d|2[0-3]):[0-5]\d$/.test(p.start_time)?p.start_time:'09:00',notice:'Bedrock unavailable; the explicitly enabled Anthropic backup selected planning preferences.'};}catch{return fallback('Both configured AI providers were unavailable. Deterministic planning completed.');}
   }
   return fallback('AI provider unavailable. Deterministic planning is active; no AI-generated observations are used.');
  }
 }
 function fallback(notice:string){return {provider:'offline' as const,energy:'steady' as const,start_time:'09:00',notice};}
+
