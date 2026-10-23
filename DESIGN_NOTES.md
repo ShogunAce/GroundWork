@@ -15,7 +15,7 @@ The supplied reference suggested calm confidence, sunlight, living plants, spaci
 ## Asset inventory
 - Original inline SVG creek illustration in `web/app/page.tsx`; no external image dependency.
 - `web/public/audio/workbook-ready.mp3`: original generated spoken reply, ElevenLabs multilingual v2, Eugene voice selected from the connected voice catalog. Muted by default.
-- Generated still-image enhancement tracked in RUNLOG; the coded scene is a complete fallback.
+- `web/public/img/creek.webp`: original ElevenLabs FLUX 2 Pro creek image, optimized to 1400px WebP. The coded scene remains a complete image-error fallback. No generated video is required for motion.
 
 ## Originality and checks
 - [x] Different layout from the reference.
