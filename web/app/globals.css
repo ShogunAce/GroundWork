@@ -4,7 +4,7 @@
 .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:-1}.field-scene>svg{position:relative;z-index:-2}.scene-caption{color:#fffce8;text-shadow:0 2px 20px #20382470}.floating-note{z-index:1}
 
 /* Cinematic background, scoped to the existing hero artwork. */
-.hero-film{position:absolute;inset:0;border-radius:inherit;overflow:hidden;z-index:-1;pointer-events:none;background:url('/img/creek-film.webp') center/cover}
+.hero-film{position:absolute;inset:0;border-radius:inherit;overflow:hidden;z-index:-1;pointer-events:none;background:url('/img/creek-film.webp') 60% center/cover}
 .hero-film video{width:100%;height:100%;object-fit:cover;object-position:60% center;opacity:0}
 .hero-film-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(245,243,235,.2),transparent 30%,rgba(22,44,31,.08) 55%,rgba(22,44,31,.5))}
 @media(prefers-reduced-motion:reduce){.hero-film video{display:none}}
