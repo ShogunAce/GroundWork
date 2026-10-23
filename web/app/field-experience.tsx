@@ -14,19 +14,19 @@ export function FieldGuide() {
     <p className="guide-invitation">Three small moves. A little more possibility.<span>Tap a card to look closer <span aria-hidden="true">↗</span></span></p>
     <div className="field-cards">
       {cards.map((card, index) => <button key={card.title} className={`field-card${open===index?' is-open':''}`}
-        aria-expanded={open===index} aria-label={`${open===index?'Close':'Explore'} ${card.title}`}
+        aria-expanded={open===index} aria-label={`${open===index?'Close':'Explore'} ${card.title}`} aria-describedby={`field-${open===index?'detail':'summary'}-${index}`}
         onClick={()=>setOpen(open===index?null:index)} onKeyDown={e=>{if(e.key==='Escape')setOpen(null);}}>
         <span className="field-card-turn">
           <span className="field-card-face field-card-front" aria-hidden={open===index}>
             <span className="card-image-window"><img src={card.image} alt="" loading="lazy" width="800" height="500"/></span>
             <span className="field-card-title">{card.title}</span>
-            <span className="field-card-text">{card.text}</span>
+            <span className="field-card-text" id={`field-summary-${index}`}>{card.text}</span>
             <span className="card-open"><span>Look closer</span><span className="card-orbit" aria-hidden="true">↗</span></span>
           </span>
           <span className="field-card-face field-card-back" aria-hidden={open!==index}>
             <img src={card.image} alt="" loading="lazy" width="800" height="1000"/>
             <span className="card-close" aria-hidden="true">×</span>
-            <span className="card-glass"><span className="field-card-title">{card.detail}</span><span className="field-card-text">{card.more}</span><span className="card-return">Tap to turn back</span></span>
+            <span className="card-glass"><span className="field-card-title">{card.detail}</span><span className="field-card-text" id={`field-detail-${index}`}>{card.more}</span><span className="card-return">Tap to turn back</span></span>
           </span>
         </span>
       </button>)}
@@ -39,7 +39,7 @@ export function CareSection({mark,onBegin}:{mark:ReactNode;onBegin:()=>void}) {
   return <section className="principles" id="principles">
     <div className="care-image"><img className="reveal-image" src="/img/field-fern.webp" alt="" loading="lazy" width="1440" height="900"/></div>
     <div className="care-content">{mark}<h2>Curiosity,<br/><em>with care.</em></h2>
-      <p className="care-copy" aria-label={words}>{words.split(' ').map((word,i)=><span key={i} aria-hidden="true">{word} </span>)}</p>
+      <p className="care-copy"><span className="visually-hidden">{words}</span>{words.split(' ').map((word,i)=><span className="care-word" key={i} aria-hidden="true">{word} </span>)}</p>
       <button className="primary" onClick={onBegin}>Make a little groundwork <span className="arrow" aria-hidden="true">↗</span></button>
     </div>
     <span className="care-caption">Look closely. Leave gently.</span>
@@ -64,7 +64,7 @@ export function ExperienceMotion({viewKey}:{viewKey:string}) {
             gsap.from(el,{y:28,opacity:0,duration:.8,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 94%',once:true}});
           });
           gsap.from('.care-image img',{scale:.86,opacity:.5,ease:'none',scrollTrigger:{trigger:'.principles',start:'top 95%',end:'top 25%',scrub:1}});
-          gsap.from('.care-copy span',{opacity:.35,stagger:.035,ease:'none',scrollTrigger:{trigger:'.care-content',start:'top 85%',end:'center 60%',scrub:1}});
+          gsap.from('.care-word',{opacity:.35,stagger:.035,ease:'none',scrollTrigger:{trigger:'.care-content',start:'top 85%',end:'center 60%',scrub:1}});
         });
         cleanup=()=>ctx.revert();
         ScrollTrigger.refresh();
