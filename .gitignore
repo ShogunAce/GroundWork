@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+dist/
+.runtime/
+*.log
+test-results/
+playwright-report/
+deployment.zip

@@ -1,0 +1,10 @@
+import 'dotenv/config';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {pipeline} from '../web/lib/pipeline';
+import {validateWorkbook,problems,type Workbook} from '../server/core';
+process.env.LLM_PROVIDER='offline';
+let final:any;await pipeline(await readFile('server/data/sample_ramble.txt','utf8'),e=>{if(e.type==='complete')final=e;});assert.ok(final);const w=final.workbook as Workbook;validateWorkbook(w);
+assert.ok(w.summary.total>=6);assert.ok(Object.values(w.summary.counts).filter(n=>n>0).length>=4);assert.ok(w.schedule.blocks.length);assert.ok(w.missions.length>=5&&w.missions.length<=7);assert.ok(w.problems.length);assert.ok(w.briefs.length&&w.briefs.length<=3);assert.equal(w.plan.length,7);assert.ok(w.observations.length);assert.ok(final.exports.csv.startsWith('id,category'));const geo=JSON.parse(final.exports.geojson);assert.equal(geo.features.length,w.observations.length);assert.ok(geo.features.every((f:any)=>f.geometry===null));assert.equal(new Set(final.tools.map((t:any)=>t.name)).size,7);assert.ok(w.problems.every(p=>problems.some(q=>q.id===p.id)));
+const bad=structuredClone(w);bad.briefs[0].evidence_ids.push('FAKE');assert.throws(()=>validateWorkbook(bad));
+console.log(`PASS: 7 sections, ${w.observations.length} observations, ${w.missions.length} safe missions, ${w.problems.length} catalog problems, ${w.briefs.length} briefs; evidence validation rejects forged IDs; both exports valid; all seven real MCP tools called.`);

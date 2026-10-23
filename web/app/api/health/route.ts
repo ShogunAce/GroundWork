@@ -1,0 +1,1 @@
+export async function GET(){try{const r=await fetch((process.env.MCP_URL||'http://127.0.0.1:3001/mcp').replace(/\/mcp$/,'/health'),{signal:AbortSignal.timeout(3000),cache:'no-store'});return Response.json({status:r.ok?'ok':'degraded',mcp:r.ok,provider:process.env.LLM_PROVIDER||'bedrock'});}catch{return Response.json({status:'degraded',mcp:false},{status:503});}}

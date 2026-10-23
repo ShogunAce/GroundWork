@@ -1,0 +1,311 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Groundwork hackathon web and MCP host with HTTPS, private release storage and role-based Bedrock access.",
+  "Parameters": {
+    "VpcId": {
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "SubnetId": {
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "CloudFrontPrefixList": {
+      "Type": "String",
+      "AllowedPattern": "pl-[a-f0-9]+"
+    },
+    "AmiId": {
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+      "Default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+    }
+  },
+  "Resources": {
+    "Artifacts": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        },
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        },
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      }
+    },
+    "ArtifactPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "Artifacts"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Principal": "*",
+              "Action": "s3:*",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "Artifacts",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Sub": "${Artifacts.Arn}/*"
+                }
+              ],
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "HostRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        ],
+        "Policies": [
+          {
+            "PolicyName": "GroundworkRuntime",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:GetObject"
+                  ],
+                  "Resource": {
+                    "Fn::Sub": "${Artifacts.Arn}/source.zip"
+                  }
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "bedrock:InvokeModel"
+                  ],
+                  "Resource": {
+                    "Fn::Sub": "arn:${AWS::Partition}:bedrock:${AWS::Region}::foundation-model/amazon.nova-micro-v1:0"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "HostProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "HostRole"
+          }
+        ]
+      }
+    },
+    "HostSecurity": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "HTTP origin only from CloudFront; no SSH or direct app ports",
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "SourcePrefixListId": {
+              "Ref": "CloudFrontPrefixList"
+            }
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "-1",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "Host": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": {
+          "Ref": "AmiId"
+        },
+        "InstanceType": "t3.small",
+        "IamInstanceProfile": {
+          "Ref": "HostProfile"
+        },
+        "MetadataOptions": {
+          "HttpTokens": "required",
+          "HttpEndpoint": "enabled"
+        },
+        "NetworkInterfaces": [
+          {
+            "DeviceIndex": "0",
+            "AssociatePublicIpAddress": true,
+            "SubnetId": {
+              "Ref": "SubnetId"
+            },
+            "GroupSet": [
+              {
+                "Ref": "HostSecurity"
+              }
+            ]
+          }
+        ],
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/xvda",
+            "Ebs": {
+              "VolumeSize": 20,
+              "VolumeType": "gp3",
+              "Encrypted": true,
+              "DeleteOnTermination": true
+            }
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${AWS::StackName}-app"
+            }
+          },
+          {
+            "Key": "Project",
+            "Value": "Groundwork"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Sub": "#!/bin/bash\nset -euo pipefail\ndnf install -y nginx unzip tar xz\ncurl -fsSLo /tmp/node.tar.xz https://nodejs.org/dist/v24.14.1/node-v24.14.1-linux-x64.tar.xz\ntar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1\nfallocate -l 2G /swapfile\nchmod 600 /swapfile\nmkswap /swapfile\nswapon /swapfile\nuseradd --system --create-home groundwork\nmkdir -p /opt/groundwork\nfor attempt in $(seq 1 120); do\n  if aws s3 cp s3://${Artifacts}/source.zip /tmp/source.zip --region ${AWS::Region}; then break; fi\n  sleep 10\ndone\nunzip -q /tmp/source.zip -d /opt/groundwork\ncd /opt/groundwork\nprintf 'LLM_PROVIDER=bedrock\\nAWS_REGION=${AWS::Region}\\nBEDROCK_MODEL_ID=amazon.nova-micro-v1:0\\nALLOW_ANTHROPIC_FALLBACK=false\\n' > .env\nchown -R groundwork:groundwork /opt/groundwork\nsudo -u groundwork env PATH=/usr/local/bin:/usr/bin:/bin npm ci\nsudo -u groundwork env PATH=/usr/local/bin:/usr/bin:/bin NEXT_TELEMETRY_DISABLED=1 npm run build\ncat > /etc/systemd/system/groundwork.service <<'UNIT'\n[Unit]\nDescription=Groundwork web and MCP\nAfter=network-online.target\nWants=network-online.target\n[Service]\nUser=groundwork\nWorkingDirectory=/opt/groundwork\nEnvironment=PATH=/usr/local/bin:/usr/bin:/bin\nEnvironment=NODE_ENV=production\nEnvironment=NEXT_TELEMETRY_DISABLED=1\nExecStart=/usr/local/bin/npm run start\nRestart=always\nRestartSec=5\nNoNewPrivileges=true\n[Install]\nWantedBy=multi-user.target\nUNIT\ncat > /etc/nginx/conf.d/groundwork.conf <<'NGINX'\nserver {\n listen 80 default_server;\n server_name _;\n client_max_body_size 300k;\n location / {\n  proxy_pass http://127.0.0.1:3000;\n  proxy_http_version 1.1;\n  proxy_set_header Host $host;\n  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n  proxy_set_header X-Forwarded-Proto https;\n  proxy_buffering off;\n  proxy_read_timeout 90s;\n }\n}\nNGINX\n# Remove the packaged default listener while retaining global nginx settings.\npython3 - <<'PY'\nfrom pathlib import Path\np=Path('/etc/nginx/nginx.conf')\ns=p.read_text()\nstart=s.find('    server {')\nif start>=0:\n    depth=0\n    for i in range(s.index('{',start),len(s)):\n        depth += (s[i]=='{')-(s[i]=='}')\n        if depth==0:\n            s=s[:start]+s[i+1:]\n            break\np.write_text(s)\nPY\nnginx -t\nsystemctl daemon-reload\nsystemctl enable --now groundwork nginx\n"
+          }
+        }
+      }
+    },
+    "Distribution": {
+      "Type": "AWS::CloudFront::Distribution",
+      "Properties": {
+        "DistributionConfig": {
+          "Enabled": true,
+          "Comment": "Groundwork live hackathon demo",
+          "HttpVersion": "http2",
+          "PriceClass": "PriceClass_100",
+          "Origins": [
+            {
+              "Id": "app",
+              "DomainName": {
+                "Fn::GetAtt": [
+                  "Host",
+                  "PublicDnsName"
+                ]
+              },
+              "CustomOriginConfig": {
+                "HTTPPort": 80,
+                "HTTPSPort": 443,
+                "OriginProtocolPolicy": "http-only",
+                "OriginReadTimeout": 60
+              }
+            }
+          ],
+          "DefaultCacheBehavior": {
+            "TargetOriginId": "app",
+            "ViewerProtocolPolicy": "redirect-to-https",
+            "AllowedMethods": [
+              "GET",
+              "HEAD",
+              "OPTIONS",
+              "PUT",
+              "POST",
+              "PATCH",
+              "DELETE"
+            ],
+            "CachedMethods": [
+              "GET",
+              "HEAD"
+            ],
+            "Compress": true,
+            "ForwardedValues": {
+              "QueryString": true,
+              "Cookies": {
+                "Forward": "all"
+              },
+              "Headers": [
+                "Origin",
+                "Accept",
+                "Content-Type"
+              ]
+            },
+            "MinTTL": 0,
+            "DefaultTTL": 0,
+            "MaxTTL": 0
+          },
+          "ViewerCertificate": {
+            "CloudFrontDefaultCertificate": true
+          }
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "Url": {
+      "Description": "Public HTTPS app URL",
+      "Value": {
+        "Fn::Sub": "https://${Distribution.DomainName}"
+      }
+    },
+    "Bucket": {
+      "Description": "Private release artifact bucket",
+      "Value": {
+        "Ref": "Artifacts"
+      }
+    },
+    "InstanceId": {
+      "Description": "SSM-managed application host",
+      "Value": {
+        "Ref": "Host"
+      }
+    },
+    "DistributionId": {
+      "Description": "CloudFront distribution",
+      "Value": {
+        "Ref": "Distribution"
+      }
+    }
+  }
+}
